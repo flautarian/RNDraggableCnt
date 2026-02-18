@@ -20,6 +20,7 @@ export const DraggableContainer = (
     draggable = true,
     rotable = true,
     resizable = true,
+    zIndex = 9999,
     onSelect,
     onDelete,
     onDragStart,
@@ -270,7 +271,7 @@ export const DraggableContainer = (
     maxWidth: contentView.width.value,
     maxHeight: contentView.height.value,
     backgroundColor: 'transparent',
-    zIndex: 15,
+    zIndex: zIndex - 1,
   }));
 
   // animated rotation style for the inner component shown
@@ -299,7 +300,8 @@ export const DraggableContainer = (
           justifyContent: 'space-around',
           alignItems: 'center',
           paddingHorizontal: 10,
-          zIndex: 16,
+          zIndex: zIndex,
+          elevation: zIndex,
         },
         buttonsAbove: {
           bottom: 'auto',
@@ -317,7 +319,8 @@ export const DraggableContainer = (
           },
           shadowOpacity: 0.25,
           shadowRadius: 3.84,
-          elevation: 5,
+          elevation: zIndex,
+          zIndex: zIndex,
         },
         resizeHandles: {
           position: 'absolute',
@@ -330,46 +333,52 @@ export const DraggableContainer = (
           height: 30,
           backgroundColor: '#fa7f7c',
           borderRadius: 20,
-          zIndex: 16,
+          zIndex: zIndex,
+          elevation: zIndex,
         },
         leftHandle: {
           left: -30,
           top: '50%',
           transform: [{ translateY: -10 }],
-          zIndex: 16,
+          zIndex: zIndex,
+          elevation: zIndex,
         },
         rightHandle: {
           right: -30,
           top: '50%',
           transform: [{ translateY: -10 }],
-          zIndex: 16,
+          zIndex: zIndex,
+          elevation: zIndex,
         },
         topHandle: {
           top: -30,
           left: '50%',
           transform: [{ translateX: -10 }],
-          zIndex: 16,
+          zIndex: zIndex,
+          elevation: zIndex,
         },
         bottomHandle: {
           bottom: -30,
           left: '50%',
           transform: [{ translateX: -10 }],
-          zIndex: 16,
+          zIndex: zIndex,
+          elevation: zIndex,
         },
         botRightHandle: {
           bottom: -15,
           right: -15,
-          zIndex: 16,
+          zIndex: zIndex,
+          elevation: zIndex,
         }
       }),
-    []
+    [zIndex]
   );
 
   return (
     <Animated.View
       selectable={false}
       draggable={false}
-      style={[dragAnimationStyle, { zIndex: selected ? 15 : 3 }]}
+      style={[dragAnimationStyle, { zIndex: selected ? zIndex - 1 : 3 }]}
       key={`dragable-text-${index}-layoutKey-${layoutKey}`}
       onLayout={onComponentLayout}>
       <Pressable
@@ -383,25 +392,39 @@ export const DraggableContainer = (
         {/* Drag buttons */}
         {
           selected &&
-          <View style={[{ visibility: selected ? 'visible' : 'hidden', opacity: selected ? 1 : 0 }, styles.buttonsContainer, buttonsAbove && styles.buttonsAbove]}>
-            <View {...(isDevelopment ? { testID: "rotateButton" } : {})} {...rotateViewpanResponder.panHandlers} style={[{ disabled: !selected, visibility: (!!rotable ? 'visible' : 'hidden'), width: buttonsSize, height: buttonsSize }, styles.button]}>
+          <View pointerEvents="box-none" style={[styles.buttonsContainer, buttonsAbove && styles.buttonsAbove]}>
+            <View 
+              {...(isDevelopment ? { testID: "rotateButton" } : {})} 
+              {...rotateViewpanResponder.panHandlers} 
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              pointerEvents={rotable ? 'auto' : 'none'}
+              style={[{ visibility: rotable ? 'visible' : 'hidden', width: buttonsSize, height: buttonsSize }, styles.button]}>
               <RotateCcw stroke="black" width={buttonsSize / 2} height={buttonsSize / 2} />
             </View>
-            <View {...(isDevelopment ? { testID: "moveButton" } : {})} {...dragViewpanResponder.panHandlers} style={[{ disabled: !selected, visibility: (draggable ? 'visible' : 'hidden'), width: buttonsSize, height: buttonsSize }, styles.button]}>
+            <View 
+              {...(isDevelopment ? { testID: "moveButton" } : {})} 
+              {...dragViewpanResponder.panHandlers} 
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              pointerEvents={draggable ? 'auto' : 'none'}
+              style={[{ visibility: draggable ? 'visible' : 'hidden', width: buttonsSize, height: buttonsSize }, styles.button]}>
               <Move stroke="black" width={buttonsSize / 2} height={buttonsSize / 2} />
             </View>
-            <Pressable {...(isDevelopment ? { testID: "deleteButton" } : {})} onPress={() => onDelete(index)} style={[{ disabled: !selected, visibility: (!!onDelete ? 'visible' : 'hidden'), width: buttonsSize, height: buttonsSize }, styles.button]}>
+            <Pressable 
+              {...(isDevelopment ? { testID: "deleteButton" } : {})} 
+              onPress={() => onDelete(index)} 
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              style={[{ visibility: onDelete ? 'visible' : 'hidden', width: buttonsSize, height: buttonsSize }, styles.button]}>
               <Trash2 stroke="black" width={buttonsSize / 2} height={buttonsSize / 2} />
             </Pressable>
           </View>
         }
         {/* Resize 4 squares buttons */}
-        {selected && resizeMode === FOUR_SQUARES && <View {...(isDevelopment ? { testID: "resizableButton-xf-square" } : {})} {...resizeXFinalViewpanResponder.panHandlers} style={[{ disabled: !selected, visibility: (selected && resizable ? 'visible' : 'hidden'), opacity: selected ? 1 : 0, width: buttonsSize, height: buttonsSize }, styles.resizeHandle, styles.leftHandle]} />}
-        {selected && resizeMode === FOUR_SQUARES && <View {...(isDevelopment ? { testID: "resizableButton-y-square" } : {})} {...resizeYViewpanResponder.panHandlers} style={[{ disabled: !selected, visibility: (selected && resizable ? 'visible' : 'hidden'), opacity: selected ? 1 : 0, width: buttonsSize, height: buttonsSize }, styles.resizeHandle, styles.bottomHandle]} />}
-        {selected && resizeMode === FOUR_SQUARES && <View {...(isDevelopment ? { testID: "resizableButton-x-square" } : {})} {...resizeXViewpanResponder.panHandlers} style={[{ disabled: !selected, visibility: (selected && resizable ? 'visible' : 'hidden'), opacity: selected ? 1 : 0, width: buttonsSize, height: buttonsSize }, styles.resizeHandle, styles.rightHandle]} />}
-        {selected && resizeMode === FOUR_SQUARES && <View {...(isDevelopment ? { testID: "resizableButton-yf-square" } : {})} {...resizeYFinalViewpanResponder.panHandlers} style={[{ disabled: !selected, visibility: (selected && resizable ? 'visible' : 'hidden'), opacity: selected ? 1 : 0, width: buttonsSize, height: buttonsSize }, styles.resizeHandle, styles.topHandle]} />}
+        {selected && resizeMode === FOUR_SQUARES && <View {...(isDevelopment ? { testID: "resizableButton-xf-square" } : {})} {...resizeXFinalViewpanResponder.panHandlers} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} pointerEvents={resizable ? 'auto' : 'none'} style={[{ visibility: resizable ? 'visible' : 'hidden', width: buttonsSize, height: buttonsSize }, styles.resizeHandle, styles.leftHandle]} />}
+        {selected && resizeMode === FOUR_SQUARES && <View {...(isDevelopment ? { testID: "resizableButton-y-square" } : {})} {...resizeYViewpanResponder.panHandlers} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} pointerEvents={resizable ? 'auto' : 'none'} style={[{ visibility: resizable ? 'visible' : 'hidden', width: buttonsSize, height: buttonsSize }, styles.resizeHandle, styles.bottomHandle]} />}
+        {selected && resizeMode === FOUR_SQUARES && <View {...(isDevelopment ? { testID: "resizableButton-x-square" } : {})} {...resizeXViewpanResponder.panHandlers} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} pointerEvents={resizable ? 'auto' : 'none'} style={[{ visibility: resizable ? 'visible' : 'hidden', width: buttonsSize, height: buttonsSize }, styles.resizeHandle, styles.rightHandle]} />}
+        {selected && resizeMode === FOUR_SQUARES && <View {...(isDevelopment ? { testID: "resizableButton-yf-square" } : {})} {...resizeYFinalViewpanResponder.panHandlers} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} pointerEvents={resizable ? 'auto' : 'none'} style={[{ visibility: resizable ? 'visible' : 'hidden', width: buttonsSize, height: buttonsSize }, styles.resizeHandle, styles.topHandle]} />}
         {/* Resize 1 square button */}
-        {selected && resizeMode === ONE_SQUARE && <View {...(isDevelopment ? { testID: "resizableButton-1-square" } : {})} {...resizeXYFinalViewpanResponder.panHandlers} style={[{ disabled: !selected, visibility: (selected && resizable ? 'visible' : 'hidden'), opacity: selected ? 1 : 0, width: buttonsSize, height: buttonsSize }, styles.resizeHandle, styles.botRightHandle]} />}
+        {selected && resizeMode === ONE_SQUARE && <View {...(isDevelopment ? { testID: "resizableButton-1-square" } : {})} {...resizeXYFinalViewpanResponder.panHandlers} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} pointerEvents={resizable ? 'auto' : 'none'} style={[{ visibility: resizable ? 'visible' : 'hidden', width: buttonsSize, height: buttonsSize }, styles.resizeHandle, styles.botRightHandle]} />}
       </Pressable>
     </Animated.View>
   );

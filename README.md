@@ -40,6 +40,7 @@ The `DraggableContainer` component accepts the following props:
 | `draggable`        | `boolean` | `true`      | Whether the container can be dragged. Move button is enabled if this function is defined.|
 | `rotable`          | `boolean` | `true`      | Whether the container can be rotated. Drag button is enabled if this function is defined.|
 | `resizable`        | `boolean` | `true`      | Whether the container can be resized. Resize buttons are enabled if this function is defined.|
+| `zIndex`           | `number`  | `9999`      | z-index for buttons and resize handles. Set a lower value if you need other elements above.|
 | `onSelect`         | `function`| `-`         | Callback when the container is selected.                                  |
 | `onDelete`         | `function`| `-`         | Callback when the delete button is pressed, delete button is enabled if this function is defined.|
 | `onDragStart`      | `function`| `-`         | Callback when dragging starts.                                            |
